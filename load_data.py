@@ -8,7 +8,7 @@ def one_hot(labels):
 
 	for label in labels:
 		one_hot = np.zeros(n_classes)
-		one_hot[label] = label
+		one_hot[label] = 1
 		out.append(one_hot)
 
 	return out

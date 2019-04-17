@@ -10,10 +10,24 @@ print(y_test.shape)
 
 model = keras.Sequential()
 
-model.add(keras.layers.Dense(units=128, activation='relu', input_shape=(28*28,)))
+model.add(keras.layers.Dense(units=512, activation='relu', input_shape=(28*28,)))
 model.add(keras.layers.Dropout(0.2))
+
+model.add(keras.layers.Dense(units=256, activation='relu'))
+model.add(keras.layers.Dropout(0.2))
+
+model.add(keras.layers.Dense(units=128, activation='relu'))
+model.add(keras.layers.Dropout(0.2))
+
 model.add(keras.layers.Dense(units=64, activation='relu'))
 model.add(keras.layers.Dropout(0.2))
+
+model.add(keras.layers.Dense(units=32, activation='relu'))
+model.add(keras.layers.Dropout(0.2))
+
+model.add(keras.layers.Dense(units=16, activation='relu'))
+model.add(keras.layers.Dropout(0.2))
+
 model.add(keras.layers.Dense(units=10, activation='softmax'))
 
 model.summary()
@@ -33,3 +47,10 @@ score = model.evaluate(x_test, y_test, verbose=0)
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
 
+
+# Save model
+model_json = model.to_json()
+with open('deep_mlp.json', 'w') as f:
+	f.write(model_json)
+
+model.save_weights('deep_mlp.h5')
