@@ -7,10 +7,26 @@ from math import floor, ceil
 
 
 def base64_to_arr(base64_encoding):
+	"""
+	Converts base64 encoding of image to array.
+	Input:
+		base64_encoding (string): base64 encoded image received from post request
+	Output:
+		array containing pixel values of the decoded image
+
+	"""
+
+	# Use regex to extract only the encoding of the image
+	# All metadata is discarded
 	imgstr = re.search(r'base64,(.*)', base64_encoding).group(1)
 
+	# Transform base64 encoded image to byte representation
 	image_bytes = io.BytesIO(base64.b64decode(imgstr))
+
+	# Turn bytes into an PIL Image object
 	im = Image.open(image_bytes)
+
+	# Turn Image object into 2d array
 	arr = np.array(im)[:,:,0]
 
 	# Invert pixel values to match training data
@@ -20,6 +36,14 @@ def base64_to_arr(base64_encoding):
 	return arr
 
 def trim_image_array(img_arr):
+	"""
+	Trims all white space around the handwritten digit
+	Input:
+		img_arr (list/array): array representation of digit image
+	Output:
+		image array with all extra whitespace trimmed away
+
+	"""
 	# Transform image array to Image object
 	im = Image.fromarray(img_arr)
 
@@ -42,34 +66,53 @@ def trim_image_array(img_arr):
 	return cropped_img_arr
 
 def square_image_array(img_arr, training_w=28, training_h=28, padding_value=0):
+	"""
+	Pads an image with some extra padding around the content. If the input
+	image is rectangular this function pads the image to be square.
+	Input:
+		img_arr (array/list): array representation of trimmed digit image
+		training_w (int): width of the images used in training
+		training_h (int): height of the images used in training
+		padding_value (int): value used to pad the image with
+
+	"""
+
+	# Get height and with of input image
 	h, w = img_arr.shape
 
+	# If the image is already square, pad so that the width and height are a multiple of training_w or training_h
 	if h == w:
 		padding = training_h - (h % training_h) + training_h
 		return np.pad(img_arr, padding, 'constant', constant_values=padding_value)
+	# If image is rectangular pad the longest side to a multiple of training_w and pad shortest side
+	# to the length of the new padded longest side
 	elif h > w:
 		# Pad height to a multiple of training height
 		# This makes downsizing easier
 		total_h_padding = training_h - (h % training_h) + training_h # Add 1 more training h for extra padding
+
+		# If total padding is even add the same amount of padding to both sides
 		if total_h_padding % 2 == 0:
 			h_padding_top = total_h_padding // 2
 			h_padding_bottom = total_h_padding // 2
+		# If total padding is odd and 1 pixel more to bottom
 		else:
 			h_padding_top = floor(total_h_padding / 2)
 			h_padding_bottom = ceil(total_h_padding / 2)
 
+		# Get height of image after padding
 		new_h = h + total_h_padding
 
 		# Pad w to match new h
 		total_w_padding = new_h - w
+		# If total padding is even add the same amount of padding to both sides
 		if total_h_padding % 2 == 0:
 			w_padding_left = total_w_padding // 2
 			w_padding_right = total_w_padding // 2
+		# If total padding is odd and 1 pixel more to right
 		else:
 			w_padding_left = floor(total_w_padding / 2)
 			w_padding_right = ceil(total_w_padding / 2)
-
-		print(h_padding_top, h_padding_bottom, w_padding_right, w_padding_left)
 
 		return np.pad(img_arr, [(h_padding_top,h_padding_bottom), (w_padding_left,w_padding_right)], 
 					  'constant', constant_values=padding_value)
@@ -82,12 +125,42 @@ def square_image_array(img_arr, training_w=28, training_h=28, padding_value=0):
 
 
 def resize_image_array(img_arr, w=28, h=28):
+	"""
+	Resize image array to match input size of neural network
+	Input:
+		img_arr (array/list): array representation of trimmed and padded digit image
+		w (int): width of output image
+		h (int): height of output image
+	Output:
+		Image resized to shape (h,w)
 
-	im_size = w,h
+	"""
+
+	im_size = h,w
 
 	im = Image.fromarray(img_arr)
+
 	im.thumbnail(im_size)
+	
 	return np.array(im)
+
+def top_n_predictions(prediction, n=3):
+	"""
+	Return the top n predictions formatted as json, ready to be sent back to webpage
+	Input:
+		predictions (array): output of keras.model.predict() function
+		n (int): return highest n probabilities
+	Output:
+		json containing the top n predictions in the format [{'class': x, 'prob': y}, ...]
+	"""
+	# Round predictions and turn into string for json
+	prediction = [{'class': class_, 'prob': str(round(prob, 6))} for class_, prob in enumerate(prediction[0])]
+	
+	# Sort predictions with highest probability on start
+	prediction = sorted(prediction, key=lambda x: float(x['prob']), reverse=True)
+
+
+	return prediction[:n]
 
 
 if __name__ == '__main__':
