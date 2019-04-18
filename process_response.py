@@ -141,8 +141,22 @@ def resize_image_array(img_arr, w=28, h=28):
 	im = Image.fromarray(img_arr)
 
 	im.thumbnail(im_size)
+
+	im_array = np.array(im)
+
+	# thumbnail method forgets a line if pixels sometimes
+	# Final check image is desired shape
+	if im_array.shape != im_size:
+		if im_array.shape[0] < h:
+			# Add zeros to bottom
+			im_array = np.pad(im_array, [(0,1), (0,0)], 'constant', constant_values=0)
+		elif im_array.shape[1] < w:
+			# Add zeros to right
+			im_array = np.pad(im_array, [(0,0), (0,1)], 'constant', constant_values=0)
+		else:
+			raise Exception("Image resized to a too large size")
 	
-	return np.array(im)
+	return im_array
 
 def top_n_predictions(prediction, n=3):
 	"""

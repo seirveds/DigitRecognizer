@@ -24,8 +24,11 @@ def process_post():
 	image_array = square_image_array(image_array)
 	image_array = resize_image_array(image_array)
 
+	print(image_array.shape, 30*'!')
+
 	# Flatten array for mlp input
 	image_array = np.resize(image_array, (image_array.shape[0] * image_array.shape[1],))
+
 
 	# Load model
 	model = load_model(json_path="model/deep_mlp.json", h5_path="model/deep_mlp.h5")
@@ -38,8 +41,6 @@ def process_post():
 
 	# Get highest predicted probability
 	prediction_json = top_n_predictions(prediction, n=1)
-
-	print(prediction_json)
 
 	# Return probabilities to webpage
 	return jsonify(prediction_json)

@@ -9,19 +9,26 @@
 	<style type="text/css">
 		.main_content_div {
 			margin: auto;
+			background-color: #f4f4f4;
 			margin-top: 5%;
 			width: 50%;
-			border: 3px solid green;
+			border: 3px solid #616161;
+			border-radius: 5px;
 			padding: 10px;
 		}
 
 		#content, #output {
 			text-align: center;
-			border: 1px solid red;
 			display: block;
 			margin-left: auto;
 			margin-right: auto;
+			margin-top: 1%;
+			margin-bottom: 1%;
 		}
+
+		body {
+			background-color: #e5e5e5;
+		} 
 
 	</style>
 
@@ -35,10 +42,10 @@
 	<script type="text/javascript">
 		window.onload=function(){
 				var signaturePad = new SignaturePad(document.getElementById('signature-pad'), {
-				  backgroundColor: 'rgba(255, 255, 255, 255)',
-				  penColor: 'rgb(0, 0, 0)',
-				  minWidth: 6,
-				  maxWidth: 6
+				    backgroundColor: 'rgba(255, 255, 255, 255)',
+				    penColor: 'rgb(0, 0, 0)',
+				    minWidth: 5.3,
+				    maxWidth: 5.3
 				});
 
 				var test = [{"json": '1'}, {"json": '2'}]
@@ -55,11 +62,13 @@
 				var cancelButton = document.getElementById('clear');
 		
 				goButton.addEventListener('click', function (event) {
-				  POSTRequest(signaturePad.toDataURL())
+				    POSTRequest(signaturePad.toDataURL())
 				});
 		
 				cancelButton.addEventListener('click', function (event) {
-				  signaturePad.clear();
+				    // Clear input pad and predictions
+				    signaturePad.clear();
+				    $('#output').text('').show()
 				});
 		};
 
@@ -74,7 +83,7 @@
 		</div>
 
 		<div id='content'>
-			<button id="go">Go</button>
+			<button id="go">Predict</button>
 			<button id="clear">Clear</button>
 		</div>
 

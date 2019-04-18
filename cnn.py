@@ -60,7 +60,7 @@ model.compile(loss='categorical_crossentropy',
 # Train model
 history = model.fit(x_train, y_train,
                     batch_size=128,
-                    epochs=15,
+                    epochs=20,
                     verbose=1,
                     validation_data=(x_test, y_test))
 
