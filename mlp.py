@@ -1,6 +1,3 @@
-# Deep multilayer perceptron used to predict class of handwritten digits
-# Trains model and saves it in the models folder
-
 import keras
 from load_data import get_train_test
 
@@ -48,10 +45,8 @@ history = model.fit(x_train, y_train,
 
 # Final evaluation
 score = model.evaluate(x_test, y_test, verbose=0)
-
 print('Test loss:', score[0])
 print('Test accuracy:', score[1])
-
 
 # Save model structure
 model_json = model.to_json()

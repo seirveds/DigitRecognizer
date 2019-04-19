@@ -48,30 +48,30 @@
 				    maxWidth: 5.3
 				});
 
-				var test = [{"json": '1'}, {"json": '2'}]
+				var goButton = document.getElementById('go');
+				var cancelButton = document.getElementById('clear');
 
+				// Send data to Flask server and put returned values in the output div
 				function POSTRequest(data) {
 					$.post("/post_receiver", JSON.stringify(data), function(d){
-						console.log(d)
 						$('#output').text("Predicted class: " + d[0]['class'] + '\nProbability: ' + d[0]['prob']).show()
 					})
+					// Prevent crash when something goes wrong on the server side
 					event.preventDefault();
 				};
 		
-				var goButton = document.getElementById('go');
-				var cancelButton = document.getElementById('clear');
-		
+				// Listener for the classify button
 				goButton.addEventListener('click', function (event) {
 				    POSTRequest(signaturePad.toDataURL())
 				});
 		
+				// Clear signaturepad and output div when clear button is clicked
 				cancelButton.addEventListener('click', function (event) {
 				    // Clear input pad and predictions
 				    signaturePad.clear();
 				    $('#output').text('').show()
 				});
 		};
-
 	</script>
 	
 </head>
@@ -83,13 +83,11 @@
 		</div>
 
 		<div id='content'>
-			<button id="go">Predict</button>
+			<button id="go">Classify</button>
 			<button id="clear">Clear</button>
 		</div>
 
-		<div class='prediction' id='output'>
-			<!-- https://www.datasciencelearner.com/python-ajax-json-request-form-flask/ -->
-		<div>
+		<div class='prediction' id='output'><div>
 	</div>
 
 </body>
