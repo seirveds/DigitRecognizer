@@ -5,6 +5,10 @@ from load_model import load_model
 import numpy as np
 from keras import backend as K
 
+
+# Define model type, 'cnn' or 'mlp'
+MODEL_TYPE = 'cnn'
+
 app = Flask(__name__)
 
 @app.route("/")
@@ -24,17 +28,29 @@ def process_post():
 	image_array = square_image_array(image_array)
 	image_array = resize_image_array(image_array)
 
-	print(image_array.shape, 30*'!')
+	if MODEL_TYPE == 'mlp':
+		# Flatten array for mlp input
+		image_array = np.resize(image_array, (image_array.shape[0] * image_array.shape[1],))
 
-	# Flatten array for mlp input
-	image_array = np.resize(image_array, (image_array.shape[0] * image_array.shape[1],))
+		# Load deep mlp model
+		model = load_model(json_path="model/deep_mlp.json", h5_path="model/deep_mlp.h5")
 
 
-	# Load model
-	model = load_model(json_path="model/deep_mlp.json", h5_path="model/deep_mlp.h5")
+	elif MODEL_TYPE == 'cnn':
+		# Add third dimension to array for cnn input
+		image_array = image_array.reshape(image_array.shape[0], image_array.shape[1], 1)
+
+		# Load cnn model
+		model = load_model(json_path="model/cnn.json", h5_path="model/cnn.h5")
+	else:
+		raise Exception("Unknown model type")
+
+	# Add existing array to new array
+	image_array = np.expand_dims(image_array, axis=0)
+	
 
 	# Throw array in neural net
-	prediction = model.predict(np.expand_dims(image_array, axis=0), steps=1)
+	prediction = model.predict(image_array, steps=1)
 
 	# Clear keras session to prepare for futher predictions
 	K.clear_session()
